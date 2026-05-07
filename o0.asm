@@ -3,12 +3,20 @@
 %assign LENX LEN+1
 %assign OFFS 8
 %assign REMA 64-OFFS
+%assign Q1 5
+%assign Q2 239
+%assign Q1S Q1*Q1
+%assign Q2S Q2*Q2
+
+;; 4 arctan(1/5) - arctan(1/239)
+;; arctan(x) = x - x^3/3 + x^5/5 - x^7/7
+;; pi = (16/5 - 4/239) - 1/3(16/5^3 - 4/239^3)
 
 section .data
     space   db ' '
     newline db 0xa
     ;; qword mal 19.265919
-    digits dq LEN*19265/1000
+    digits dq LEN*19
 
     hello db  0xa, "  Hullo     BigNum!!!", 0xa, 0xa, 0
     .len equ $ - hello
@@ -16,6 +24,9 @@ section .data
 section .bss
     ; --- Reserve memory blocks ---
     ; resq reserves 64-bit (8-byte) quadwords
+    sum: resq LEN
+    fq1: resq LEN
+    fq2: resq LEN
     a: resq LEN
     b: resq LEN
     c: resq LEN
@@ -27,6 +38,14 @@ section .bss
 
 section .text
     global _start
+
+    ; rdi 
+    fillzero:
+        mov rcx, LEN
+        mov rax, 0
+        cld
+        rep stosq
+        ret
 
     init:
         mov rax,1
@@ -126,27 +145,10 @@ section .text
         shr rax, REMA
         ret
 
-    _start:
-        mov rdi, a
-        call init
-
-        ; mov rdi, d
-        ; mov rsi, a
-        ; call dump
-
-        mov rdi, b
-        mov rsi, a
-        mov rdx,7
-        call divide
-
-        ;mov rdi, d
-        ;mov rsi, b
-        ;call dump
-
+    dump10:
         ; digit loops, target d
         mov r12, t
         mov r13, [digits]
-
         mov rdi, t
         mov rcx, [digits]
         mov rax, 'Y'
@@ -186,6 +188,27 @@ section .text
         mov rax,1
         mov rdi, rax
         syscall
+        ret
+
+    _start:
+        mov rdi, a
+        call init
+
+        ; mov rdi, d
+        ; mov rsi, a
+        ; call dump
+
+        mov rdi, b
+        mov rsi, a
+        mov rdx,7
+        call divide
+
+        call dump10
+
+        ;mov rdi, d
+        ;mov rsi, b
+        ;call dump
+
 
 
         ; mov rdi, d
