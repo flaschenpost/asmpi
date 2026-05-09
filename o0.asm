@@ -70,14 +70,31 @@ section .text
         syscall
 %endmacro
 
-
 %macro dump_bits 1
       mov rdi, debug
       mov rsi, %1
       call dump
 %endmacro
 
+%macro divid3 3
+        mov rdi, %1
+        mov rsi, %2
+        mov rdx, %3
+        call divide
+%endmacro
 
+%macro addto 2
+        mov rdi, %1
+        mov rsi, %2
+        call add2
+%endmacro
+
+%macro subtract 3
+        mov rdi, %1
+        mov rsi, %2
+        mov rdx, %3
+        call sub3
+%endmacro
     _start:
 
         call init_buffer
@@ -88,31 +105,15 @@ section .text
         mov rdi, fq1
         call init_to_1
 
-        mov rdi, fq1
-        mov rsi, fq1
-        mov rdx, Q1
-        call divide
+        divid3 fq1,fq1,Q1
 
         ;; dump_bits fq1
         ; dump10 fq1
 
         ; initial fq1 = 1/5, skipping the "3." at the beginning
-        mov rdi, sum
-        mov rsi, fq1
-        call add2
+        addto sum,fq1
 
-        ; dump10 sum
-        ;; dump_bits fq1
-        ; dump10 fq1
-        
-        ; print hello1
-
-        ;; dump_bits fq1
-
-        mov rdi, fq1
-        mov rsi, fq1
-        mov rdx, Q1S
-        call divide
+        divid3 fq1, fq1, Q1S
 
         ;; dump_bits fq1
         ; dump10 fq1
@@ -139,27 +140,17 @@ section .text
         shl rax,2
         mov [fq2], rax
 
-        mov rdi, fq2
-        mov rsi, fq2
-        mov rdx, Q2
-        call divide
+        divid3 fq2, fq2, Q2
 
         ; dump10 fq2
 
-        mov rdi, sum
-        mov rsi, sum
-        mov rdx, fq2
-        call sub3
+        subtract sum,sum,fq2
 
         ; print hello1
         ; dump10 sum
 
-        mov rdi, fq2
-        mov rsi, fq2
-        mov rdx, Q2S
-        call divide
+        divid3 fq2, fq2, Q2S
 
-        print hello1
         ; dump10 fq2
 
         mov r15, 1400
@@ -173,59 +164,31 @@ section .text
         ; print lfq2
         ; dump10 fq2
 
-        mov rdi, a
-        mov rsi, fq1
-        mov rdx, fq2
-        call sub3
+        subtract a,fq1, fq2
 
         ; dump10 a
 
-        mov rdi, a
-        mov rsi, a
-        mov rdx, r14
-        call divide
+        divid3 a, a, r14
         add r14, 2
 
         ; dump10 a
 
-        mov rdi, sum
-        mov rsi, sum
-        mov rdx, a
-        call sub3
+        subtract sum,sum,a
 
         ; print lsum
         dump10 sum
 
-        mov rdi, fq1
-        mov rsi, fq1
-        mov rdx, Q1S
-        call divide
+        divid3 fq1, fq1, Q1S
+        divid3 fq2, fq2, Q2S
 
-        mov rdi, fq2
-        mov rsi, fq2
-        mov rdx, Q2S
-        call divide
-
-        ; print hello2
-        ; print lfq1
-        ; dump10 fq1
-        ; print lfq2
-        ; dump10 fq2
-
-        ; dump10 sum
-
-        ; print hello3
-
-        mov rdi, a
-        mov rsi, fq1
-        mov rdx, fq2
-        call sub3
+        subtract a,fq1,fq2
 
 
         mov rdi, a
         mov rsi, a
         mov rdx, r14
         call divide
+        divid3 a, a, r14
         add r14, 2
 
         ; dump10 a
@@ -235,17 +198,11 @@ section .text
         call add2
 
         ; print lsum
-        dump10 sum
+        ; dump10 sum
 
-        mov rdi, fq1
-        mov rsi, fq1
-        mov rdx, Q1S
-        call divide
+        divid3 fq1, fq1, Q1S
+        divid3 fq2, fq2, Q2S
 
-        mov rdi, fq2
-        mov rsi, fq2
-        mov rdx, Q2S
-        call divide
 
         dec r15
         jnz .lp1
