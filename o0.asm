@@ -1,5 +1,5 @@
 ; --- Define the constant ---
-%assign LEN 0x100
+%assign LEN 0x3000
 %assign LENX LEN+1
 %assign OFFS 8
 %assign REMA 64-OFFS
@@ -144,7 +144,10 @@ section .text
 
         ; dump10 fq2
 
-        subtract sum,sum,fq2
+        mov rdi, sum
+        mov rsi, sum
+        mov rdx, fq2
+        call sub3
 
         ; print hello1
         ; dump10 sum
@@ -177,7 +180,7 @@ section .text
         subtract sum,sum,a
 
         ; print lsum
-        dump10 sum
+        ; dump10 sum
 
         divid3 fq1, fq1, Q1S
         divid3 fq2, fq2, Q2S
@@ -187,14 +190,13 @@ section .text
 
 
         divid3 a, a, r14
+        add r14, 2
         ; dump10 a
 
-        mov rdi, sum
-        mov rsi, a
-        call add2
+        addto sum,a
 
         ; print lsum
-        dump10 sum
+        ; dump10 sum
 
         divid3 fq1, fq1, Q1S
         divid3 fq2, fq2, Q2S
@@ -204,6 +206,8 @@ section .text
         jnz .lp1
 
         dump10 sum
+        dump10 fq1
+        dump10 fq2
 
         exit 3
 
