@@ -1,5 +1,5 @@
 ; --- Define the constant ---
-%assign LEN 0x1000
+%assign LEN 0x100
 %assign LENX LEN+1
 %assign OFFS 8
 %assign REMA 64-OFFS
