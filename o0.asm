@@ -1,5 +1,5 @@
 ; --- Define the constant ---
-%assign LEN 0x1000
+%assign LEN 0x100
 %assign LENX LEN+1
 %assign OFFS 8
 %assign REMA 64-OFFS
@@ -151,6 +151,7 @@ section .text
 
         divid3 fq2, fq2, Q2S
 
+        print hello1
         ; dump10 fq2
 
         mov r15, 1400
@@ -185,6 +186,7 @@ section .text
 
 
 
+        divid3 a, a, r14
         ; dump10 a
 
         mov rdi, sum
