@@ -1,6 +1,8 @@
 ; --- Define the constant ---
-%assign LEN 0x3000
+%assign BLOCKS 0x40
+%assign LEN 0x140
 %assign LENX LEN+1
+%assign LOOPS 0x800
 %assign OFFS 8
 %assign REMA 64-OFFS
 %assign Q1 5
@@ -42,6 +44,7 @@ section .bss
     sum: resq LEN
     fq1: resq LEN
     fq2: resq LEN
+    rest: resq LOOPS
     a: resq LEN
     b: resq LEN
     c: resq LEN
@@ -157,7 +160,7 @@ section .text
         print hello1
         ; dump10 fq2
 
-        mov r15, 1400
+        mov r15, LOOPS
         mov r14, 3
 
         .lp1:
