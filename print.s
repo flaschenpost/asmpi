@@ -71,7 +71,7 @@ mult10:
     xor r8,r8
     mov r9, 10
     mov r10, 1
-    shl r10, REMA
+    shl r10, 59
     dec r10
     .loop1:
       mov rax, [rsi]
@@ -90,7 +90,7 @@ mult10:
     mov r8, rax
     and r8, r10
     mov [rsi], r8
-    shr rax, REMA
+    shr rax, 59
     ret
 
 %macro dump10 1
@@ -142,3 +142,16 @@ dump_b10:
     pop r12
     ret
 
+%macro print 1
+        mov rsi, %1
+        mov rdx, %1.len
+        mov rax, 1
+        mov rdi, rax
+        syscall
+%endmacro
+
+%macro dump_bits 1
+      mov rdi, debug
+      mov rsi, %1
+      call dump
+%endmacro

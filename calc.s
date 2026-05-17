@@ -1,17 +1,27 @@
 ;; external LEN
-;; rdi: target, rsi: source, rdx: divisor
+;; rdi: target, rsi: source, rdx: divisor, rcx: remainder
+;; return remainder
 divide:
     mov r8, rdx
-    xor rdx, rdx
+    mov rdx, rcx
     mov rcx, LEN
     .loop1:
     mov rax, [rsi]
+    test rax, rax
+    jnz .calc
+      mov [rdi], rax
+      add rdi,8
+      add rsi,8
+      dec rcx
+      jnz .loop1
+    .calc:
     div r8
     mov [rdi], rax
     add rdi,8
     add rsi,8
     dec rcx
     jnz .loop1
+    mov rax, r8
     ret
 
 ;; rdi: Target (digits), rsi: source1; rdx: source2 rdi = rsi - rdx
@@ -68,4 +78,26 @@ mult:
       dec rcx
     jnz .loop1
     ret
+
+;; rdi: target, rsi: source, rdx: divisor, rcx: remainder
+%macro divid3 4
+        mov rdi, %1
+        mov rsi, %2
+        mov rdx, %3
+        mov rcx, [%4]
+        call divide
+%endmacro
+
+%macro addto 2
+        mov rdi, %1
+        mov rsi, %2
+        call add2
+%endmacro
+
+%macro subtract 3
+        mov rdi, %1
+        mov rsi, %2
+        mov rdx, %3
+        call sub3
+%endmacro
 
