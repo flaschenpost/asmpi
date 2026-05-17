@@ -1,8 +1,6 @@
 ; --- Define the constant ---
-%assign LEN 0x3000
-%assign LENX LEN+1
-%assign OFFS 8
-%assign REMA 64-OFFS
+%assign LEN 0x10
+%assign LOOPS 100
 %assign Q1 5
 %assign Q2 239
 %assign Q1S Q1*Q1

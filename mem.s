@@ -1,6 +1,6 @@
 ;; rdi, rsi, rdx, rcx, r8, r9
 
-;; external LEN, REMA
+;; external LEN
 ; rdi : target
 fillzero:
     mov rcx, LEN
@@ -12,7 +12,6 @@ fillzero:
 ; rdi : target
 init_to_1:
     mov rax,1
-    shl rax, REMA
     mov [rdi], rax
     add rdi, 8
     mov rcx, LEN

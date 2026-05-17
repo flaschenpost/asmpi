@@ -70,9 +70,6 @@ mult10:
     lea rsi, [rsi+8*rcx]
     xor r8,r8
     mov r9, 10
-    mov r10, 1
-    shl r10, REMA
-    dec r10
     .loop1:
       mov rax, [rsi]
       mul r9
@@ -87,10 +84,8 @@ mult10:
     mul r9
     add rax, r8
     ; rdx and Carry should be 0
-    mov r8, rax
-    and r8, r10
+    xor r8, r8
     mov [rsi], r8
-    shr rax, REMA
     ret
 
 %macro dump10 1
