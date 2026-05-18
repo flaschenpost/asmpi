@@ -60,214 +60,182 @@ section .text
     syscall
 %endmacro
 
-%macro print 1
-        mov rsi, %1
-        mov rdx, %1.len
-        mov rax, 1
-        mov rdi, rax
-        syscall
-%endmacro
+_start:
 
-%macro dump_bits 1
-      mov rdi, debug
-      mov rsi, %1
-      call dump
-%endmacro
+    call init_buffer
+    mov rdi, sum
+    call fillzero
 
-%macro divid3 3
-        mov rdi, %1
-        mov rsi, %2
-        mov rdx, %3
-        call divide
-%endmacro
+    dump10 sum
+    mov rdi, fq1
+    call init_to_1
 
-%macro addto 2
-        mov rdi, %1
-        mov rsi, %2
-        call add2
-%endmacro
+    divid3 fq1,fq1,Q1
 
-%macro subtract 3
-        mov rdi, %1
-        mov rsi, %2
-        mov rdx, %3
-        call sub3
-%endmacro
-    _start:
+    ;; dump_bits fq1
+    ; dump10 fq1
 
-        call init_buffer
-        mov rdi, sum
-        call fillzero
+    ; initial fq1 = 1/5, skipping the "3." at the beginning
+    addto sum,fq1
 
-        ; dump10 sum
-        mov rdi, fq1
-        call init_to_1
+    divid3 fq1, fq1, Q1S
 
-        divid3 fq1,fq1,Q1
+    ;; dump_bits fq1
+    ; dump10 fq1
 
-        ;; dump_bits fq1
-        ; dump10 fq1
+    ; print hello2
 
-        ; initial fq1 = 1/5, skipping the "3." at the beginning
-        addto sum,fq1
+    ; all other fq1 = 16/5^u
+    mov rdi, fq1
+    mov rsi, fq1
+    mov rdx, 16
+    call mult
 
-        divid3 fq1, fq1, Q1S
+    ;; dump_bits fq1
+    ; dump10 fq1
 
-        ;; dump_bits fq1
-        ; dump10 fq1
+    ; print hello3
 
-        ; print hello2
+    mov rdi, fq2
+    call init_to_1
 
-        ; all other fq1 = 16/5^u
-        mov rdi, fq1
-        mov rsi, fq1
-        mov rdx, 16
-        call mult
+    ; initial fq2 = 4/239
+    ;; *4
+    mov rax, [fq2]
+    shl rax,2
+    mov [fq2], rax
 
-        ;; dump_bits fq1
-        ; dump10 fq1
+    divid3 fq2, fq2, Q2
 
-        ; print hello3
+    ; dump10 fq2
 
-        mov rdi, fq2
-        call init_to_1
+    mov rdi, sum
+    mov rsi, sum
+    mov rdx, fq2
+    call sub3
 
-        ; initial fq2 = 4/239
-        ;; *4
-        mov rax, [fq2]
-        shl rax,2
-        mov [fq2], rax
+    ; print hello1
+    ; dump10 sum
 
-        divid3 fq2, fq2, Q2
+    divid3 fq2, fq2, Q2S
 
-        ; dump10 fq2
+    print hello1
+    ; dump10 fq2
 
-        mov rdi, sum
-        mov rsi, sum
-        mov rdx, fq2
-        call sub3
+    mov r15, 1400
+    mov r14, 3
 
-        ; print hello1
-        ; dump10 sum
+    .lp1:
 
-        divid3 fq2, fq2, Q2S
+    ; print hello1
+    ; print lfq1
+    ; dump10 fq1
+    ; print lfq2
+    ; dump10 fq2
 
-        print hello1
-        ; dump10 fq2
+    subtract a,fq1, fq2
 
-        mov r15, 1400
-        mov r14, 3
+    ; dump10 a
 
-        .lp1:
+    divid3 a, a, r14
+    add r14, 2
 
-        ; print hello1
-        ; print lfq1
-        ; dump10 fq1
-        ; print lfq2
-        ; dump10 fq2
+    ; dump10 a
 
-        subtract a,fq1, fq2
+    subtract sum,sum,a
 
-        ; dump10 a
+    ; print lsum
+    ; dump10 sum
 
-        divid3 a, a, r14
-        add r14, 2
+    divid3 fq1, fq1, Q1S
+    divid3 fq2, fq2, Q2S
 
-        ; dump10 a
-
-        subtract sum,sum,a
-
-        ; print lsum
-        ; dump10 sum
-
-        divid3 fq1, fq1, Q1S
-        divid3 fq2, fq2, Q2S
-
-        subtract a,fq1,fq2
+    subtract a,fq1,fq2
 
 
 
-        divid3 a, a, r14
-        add r14, 2
-        ; dump10 a
+    divid3 a, a, r14
+    add r14, 2
+    ; dump10 a
 
-        addto sum,a
+    addto sum,a
 
-        ; print lsum
-        ; dump10 sum
+    ; print lsum
+    ; dump10 sum
 
-        divid3 fq1, fq1, Q1S
-        divid3 fq2, fq2, Q2S
-
-
-        dec r15
-        jnz .lp1
-
-        dump10 sum
-        dump10 fq1
-        dump10 fq2
-
-        exit 3
-
-        mov rdi, sum
-        mov rsi, fq1
-        mov rdx, 7
-        call mult
-
-        mov rdi, debug
-        mov rsi, sum
-        call dump
-
-        memcp temp, sum
-
-        mov rdi, debug
-        mov rsi, temp
-        call dump_b10
-        
-        mov rdi, base10
-        mov rsi, sum
-        call dump_b10
-
-        exit 2
-        mov rdi, fq2
-        call init_to_1
-        
-
-        mov rdi, base10
-        mov rsi, a
-        call dump_b10
+    divid3 fq1, fq1, Q1S
+    divid3 fq2, fq2, Q2S
 
 
-        mov rdi, fq2
-        mov rsi, fq2
-        mov rdx,Q2
-        call divide 
+    dec r15
+    jnz .lp1
 
-      ;; pi = (16/5 - 4/239) - 1/3(16/5^3 - 4/239^3)
+    dump_bits fq1
+    dump10 sum
+    dump10 fq1
+    ;;dump10 fq2
 
-        ; mov rdi, debug
-        ; mov rsi, sum
-        ; call dump
+    exit 3
 
-        ;; mov rdi, b
-        ;; mov rsi, sum
-        ;; mov rdx,7
-        ;; call divide
+    mov rdi, sum
+    mov rsi, fq1
+    mov rdx, 7
+    call mult
 
-        call dump_b10
+    mov rdi, debug
+    mov rsi, sum
+    call dump
 
-        ;mov rdi, debug
-        ;mov rsi, b
-        ;call dump
+    memcp temp, sum
+
+    mov rdi, debug
+    mov rsi, temp
+    call dump_b10
+    
+    mov rdi, base10
+    mov rsi, sum
+    call dump_b10
+
+    exit 2
+    mov rdi, fq2
+    call init_to_1
+    
+
+    mov rdi, base10
+    mov rsi, a
+    call dump_b10
 
 
-        exit 0
+    mov rdi, fq2
+    mov rsi, fq2
+    mov rdx,Q2
+    call divide 
 
-        ; mov rdi, debug
-        ; mov rsi, b
-        ; call dump
+  ;; pi = (16/5 - 4/239) - 1/3(16/5^3 - 4/239^3)
 
-        
+    ; mov rdi, debug
+    ; mov rsi, sum
+    ; call dump
+
+    ;; mov rdi, b
+    ;; mov rsi, sum
+    ;; mov rdx,7
+    ;; call divide
+
+    call dump_b10
+
+    ;mov rdi, debug
+    ;mov rsi, b
+    ;call dump
+
+
+    exit 0
+
+    ; mov rdi, debug
+    ; mov rsi, b
+    ; call dump
+
+    
 
 ; Compile/Link
 ;

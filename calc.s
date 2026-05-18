@@ -1,3 +1,22 @@
+%macro divid3 3
+        mov rdi, %1
+        mov rsi, %2
+        mov rdx, %3
+        call divide
+%endmacro
+
+%macro addto 2
+        mov rdi, %1
+        mov rsi, %2
+        call add2
+%endmacro
+
+%macro subtract 3
+        mov rdi, %1
+        mov rsi, %2
+        mov rdx, %3
+        call sub3
+%endmacro
 ;; external LEN
 ;; rdi: target, rsi: source, rdx: divisor
 divide:

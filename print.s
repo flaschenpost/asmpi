@@ -1,5 +1,19 @@
 ; LEN qwords in rdi and rsi
 
+%macro print 1
+        mov rsi, %1
+        mov rdx, %1.len
+        mov rax, 1
+        mov rdi, rax
+        syscall
+%endmacro
+
+%macro dump_bits 1
+      mov rdi, debug
+      mov rsi, %1
+      call dump
+%endmacro
+
 ; targetstring: rdi : resb 73*(LEN)+2
 ; sourcenumber: rsi
 ; const: LEN
