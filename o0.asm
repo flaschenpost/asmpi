@@ -47,8 +47,8 @@ section .bss
     b: resq LEN
     c: resq LEN
     temp: resq LEN
-    base10: resb LEN*19+1
-    debug: resb 73*(LEN)+2
+    base10: resq LEN*3
+    debug: resq 9*(LEN)+1
 
 
 ;; rdi, rsi, rdx, rcx, r8, r9

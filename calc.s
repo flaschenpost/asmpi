@@ -7,14 +7,14 @@ divide:
     mov rcx, LEN
     .loop1:
     mov rax, [rsi]
-    test rax, rax
-    jnz .calc
-      mov [rdi], rax
-      add rdi,8
-      add rsi,8
-      dec rcx
-      jnz .loop1
-    .calc:
+    ;; test rax, rax
+    ;; jnz .calc
+      ;; mov [rdi], rax
+      ;; add rdi,8
+      ;; add rsi,8
+      ;; dec rcx
+      ;; jnz .loop1
+    ;; .calc:
     div r8
     mov [rdi], rax
     add rdi,8

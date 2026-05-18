@@ -42,11 +42,7 @@ dump:
     ret
 
 init_buffer:
-  push r12
-  push r13
     ; digit loops, target debug
-    mov r12, base10
-    mov r13, [digits]
     mov rdi, base10
     mov rcx, [digits]
     mov rax, 'Y'
@@ -57,8 +53,6 @@ init_buffer:
     stosb
     mov rsi, b
     mov rdi, base10
-  pop r13
-  pop r12
 
 ret
 
@@ -70,9 +64,6 @@ mult10:
     lea rsi, [rsi+8*rcx]
     xor r8,r8
     mov r9, 10
-    mov r10, 1
-    shl r10, 59
-    dec r10
     .loop1:
       mov rax, [rsi]
       mul r9
@@ -87,10 +78,8 @@ mult10:
     mul r9
     add rax, r8
     ; rdx and Carry should be 0
-    mov r8, rax
-    and r8, r10
+    xor r8, r8
     mov [rsi], r8
-    shr rax, 59
     ret
 
 %macro dump10 1
