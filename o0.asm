@@ -1,6 +1,7 @@
-; --- Define the constant ---
+; --- Define the constants ---
 %assign LEN 0x10
-%assign LOOPS 100
+%assign LOOPS 0x80
+%assign BASELEN LEN*LOOPS
 %assign Q1 5
 %assign Q2 239
 %assign Q1S Q1*Q1
@@ -50,15 +51,14 @@ section .bss
 
 ;; rdi, rsi, rdx, rcx, r8, r9
 
-section .text
-    global _start
-
-
 %macro exit 1
     mov rdi, %1          ; %1 refers to the first argument passed
     mov rax, 60          ; syscall number for sys_exit
     syscall
 %endmacro
+
+section .text
+    global _start
 
 _start:
 

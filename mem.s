@@ -23,13 +23,13 @@ init_to_1:
 
 ; copy LEN qw from rsi to rdi
 %macro memcp 2
-  mov rdi, %1
-  mov rsi, %2
-  mov rcx, LEN                    ; RCX = number of QWORDs to copy
+    mov rdi, %1
+    mov rsi, %2
+    mov rcx, LEN                    ; RCX = number of QWORDs to copy
 
-  cld                             ; Clear Direction Flag (DF=0) 
-  ; ensures RSI/RDI increment forward
+    cld                             ; Clear Direction Flag (DF=0) 
+    ; ensures RSI/RDI increment forward
 
-  rep movsq                       ; Repeat "move qword" RCX times
+    rep movsq                       ; Repeat "move qword" RCX times
 %endmacro
 
