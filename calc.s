@@ -21,7 +21,7 @@
 %endmacro
 
 ;; external LEN
-;; rdi: target, rsi: source, rdx: divisor, rcx: remainder
+;; rdi: target, rsi: source, rdx: divisor, rcx: last remainder
 ;; return remainder
 divide:
     mov r8, rdx
@@ -29,18 +29,20 @@ divide:
     mov rcx, LEN
     .loop1:
     mov rax, [rsi]
+    test rdx, rdx
+    jnz .calc
     test rax, rax
     jnz .calc
       mov [rdi], rax
       add rdi,8
       add rsi,8
-      dec rcx
-      jnz .loop1
+      jmp .endloop1
     .calc:
     div r8
     mov [rdi], rax
     add rdi,8
     add rsi,8
+    .endloop1
     dec rcx
     jnz .loop1
     mov rax, r8

@@ -1,6 +1,6 @@
 ; --- Define the constant ---
 %assign BLOCKS 5
-%assign LEN 0x140
+%assign LEN 0x20
 %assign LOOPS 0x80
 %assign TOTAL LEN*LOOPS
 %assign Q1 5
