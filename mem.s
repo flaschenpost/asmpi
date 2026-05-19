@@ -4,12 +4,10 @@
 ; rdi : target, rsi: count
 %macro fillzero 2
     mov rdi, %1
-    ; mov rcx, %2
-    mov rcx, LEN
+    mov rcx, %2
     mov rax, 0
     cld
     rep stosq
-    ret
 %endmacro
 
 ; rdi : target
