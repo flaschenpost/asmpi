@@ -1,8 +1,7 @@
 ; --- Define the constant ---
-%assign LEN 0x3000
-%assign LENX LEN+1
-%assign OFFS 8
-%assign REMA 64-OFFS
+%assign LEN 0x20
+%assign DEPTH 0x280
+%assign TOTAL LEN*DEPTH
 %assign Q1 5
 %assign Q2 239
 %assign Q1S Q1*Q1
@@ -39,15 +38,17 @@ section .data
 section .bss
     ; --- Reserve memory blocks ---
     ; resq reserves 64-bit (8-byte) quadwords
-    sum: resq LEN
+    sum: resq TOTAL
     fq1: resq LEN
     fq2: resq LEN
+    rest1: resq DEPTH
+    rest2: resq DEPTH
     a: resq LEN
     b: resq LEN
     c: resq LEN
     temp: resq LEN
-    base10: resb LEN*19+1
-    debug: resb 73*(LEN)+2
+    base10: resq LEN*8
+    debug: resq 9*(LEN)+1
 
 
 ;; rdi, rsi, rdx, rcx, r8, r9
@@ -62,50 +63,21 @@ section .text
     syscall
 %endmacro
 
-%macro print 1
-        mov rsi, %1
-        mov rdx, %1.len
-        mov rax, 1
-        mov rdi, rax
-        syscall
-%endmacro
-
-%macro dump_bits 1
-      mov rdi, debug
-      mov rsi, %1
-      call dump
-%endmacro
-
-%macro divid3 3
-        mov rdi, %1
-        mov rsi, %2
-        mov rdx, %3
-        call divide
-%endmacro
-
-%macro addto 2
-        mov rdi, %1
-        mov rsi, %2
-        call add2
-%endmacro
-
-%macro subtract 3
-        mov rdi, %1
-        mov rsi, %2
-        mov rdx, %3
-        call sub3
-%endmacro
     _start:
 
+        xor r12, r12
         call init_buffer
-        mov rdi, sum
-        call fillzero
+        
+        fillzero sum, TOTAL
+        fillzero rest1, DEPTH
+        fillzero rest2, DEPTH
 
         ; dump10 sum
         mov rdi, fq1
         call init_to_1
+        lea rax, [rest1]
 
-        divid3 fq1,fq1,Q1
+        divid3 fq1,fq1,Q1, rax
 
         ;; dump_bits fq1
         ; dump10 fq1
@@ -113,7 +85,8 @@ section .text
         ; initial fq1 = 1/5, skipping the "3." at the beginning
         addto sum,fq1
 
-        divid3 fq1, fq1, Q1S
+        lea rax, [rest1]
+        divid3 fq1, fq1, Q1S, rax
 
         ;; dump_bits fq1
         ; dump10 fq1
@@ -140,7 +113,8 @@ section .text
         shl rax,2
         mov [fq2], rax
 
-        divid3 fq2, fq2, Q2
+        lea rax, [rest1]
+        divid3 fq2, fq2, Q2, rax
 
         ; dump10 fq2
 
@@ -152,12 +126,13 @@ section .text
         ; print hello1
         ; dump10 sum
 
-        divid3 fq2, fq2, Q2S
+        lea rax, [rest1]
+        divid3 fq2, fq2, Q2S, rax
 
         print hello1
         ; dump10 fq2
 
-        mov r15, 1400
+        mov r15, DEPTH
         mov r14, 3
 
         .lp1:
@@ -172,7 +147,8 @@ section .text
 
         ; dump10 a
 
-        divid3 a, a, r14
+        lea rax, [rest1]
+        divid3 a, a, r14, rax
         add r14, 2
 
         ; dump10 a
@@ -182,14 +158,17 @@ section .text
         ; print lsum
         ; dump10 sum
 
-        divid3 fq1, fq1, Q1S
-        divid3 fq2, fq2, Q2S
+        lea rax, [rest1]
+        divid3 fq1, fq1, Q1S, rax
+        lea rax, [rest1]
+        divid3 fq2, fq2, Q2S, rax
 
         subtract a,fq1,fq2
 
 
 
-        divid3 a, a, r14
+        lea rax, [rest1]
+        divid3 a, a, r14, rax
         add r14, 2
         ; dump10 a
 
@@ -198,8 +177,10 @@ section .text
         ; print lsum
         ; dump10 sum
 
-        divid3 fq1, fq1, Q1S
-        divid3 fq2, fq2, Q2S
+        lea rax, [rest1]
+        divid3 fq1, fq1, Q1S, rax
+        lea rax, [rest1]
+        divid3 fq2, fq2, Q2S, rax
 
 
         dec r15
