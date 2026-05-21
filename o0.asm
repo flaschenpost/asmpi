@@ -75,21 +75,23 @@ section .text
         fillzero rest2, DEPTH
 
         ; dump_dec sum
-        mov rax, 1
 
-        dividRem fq1, Q1, rax
-        dump_bits fq1
+        ; division into fq1
 
+        ; last "remainder" = 1, initial value
         mov rax, 16
+        dividRem fq1, Q1, rax
+        ; remainder into rest1
+        mov qword [rest1], rax
+
+        ; division into fq1
+        ; last "remainder" = 16, initial value
+        mov rax, 4
         dividRem fq2, Q2, rax
-        dump_bits fq2
-
-        exit 7
-
+        ; remainder into rest1
+        mov qword [rest2], rax
 
         add qword [position], 8
-        ;; dump_bits fq1
-        ; dump_dec fq1
 
         ; initial fq1 = 1/5, skipping the "3." at the beginning
         addto sum,fq1
