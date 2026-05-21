@@ -1,7 +1,7 @@
 ; --- Define the constant ---
 %assign LEN 0x10
 %assign DEPTH 0x200
-%assign TOTAL LEN*DEPTH
+%assign TOTAL LEN*DEPTH/4
 %assign Q1 5
 %assign Q2 239
 %assign Q1S Q1*Q1
@@ -70,10 +70,6 @@ section .text
         xor r12, r12
         call init_buffer
         
-        fillzero sum, TOTAL
-        fillzero rest1, DEPTH
-        fillzero rest2, DEPTH
-
         ; dump_dec sum
 
         ; division into fq1
@@ -83,6 +79,20 @@ section .text
         dividRem fq1, Q1, rax
         ; remainder into rest1
         mov qword [rest1], rax
+        dump_bits fq1
+
+        ;;; start just test "loop"
+        mov rax, [rest1]
+        mov rbx, [position]
+        add rbx, 8
+
+        dividRem fq1, Q1, rax
+        mov [rest1 + rbx ], rax
+        dump_bits fq1
+        ;;; end test "loop"
+        exit 2
+
+        memcp sum, fq1
 
         ; division into fq1
         ; last "remainder" = 16, initial value
@@ -91,14 +101,20 @@ section .text
         ; remainder into rest1
         mov qword [rest2], rax
 
+        dump_bits fq2
         add qword [position], 8
 
-        ; initial fq1 = 1/5, skipping the "3." at the beginning
-        addto sum,fq1
 
+        subtract sum,sum,fq2
+
+        mov rbx, [position]
         lea rax, [rest1]
-        divid3 fq1, fq1, Q1S, rax
+        dividRem fq1, Q1S, rax
+        ; store next remainder
+        mov [rest1 + rbx], rax
+        dump_bits fq1
 
+        exit 5
         ;; dump_bits fq1
         ; dump_dec fq1
 
@@ -127,10 +143,6 @@ section .text
 
         ; dump_dec fq2
 
-        mov rdi, sum
-        mov rsi, sum
-        mov rdx, fq2
-        call sub3
 
         ; print hello1
         ; dump_dec sum

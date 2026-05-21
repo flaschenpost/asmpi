@@ -32,20 +32,20 @@
 ;; return remainder
 divideRem:
     mov rcx, LEN
-    xor rax, rax
+    mov rax, rdx
+    xor rdx, rdx
     .loop1:
     test rdx, rdx
     jnz .calc
     test rax, rax
     jnz .calc
-      mov [rdi], rax
-      add rdi,8
       jmp .endloop1
     .calc:
     div rsi
-    mov [rdi], rax
-    add rdi,8
     .endloop1:
+    mov [rdi], rax
+    xor rax, rax
+    add rdi,8
     dec rcx
     jnz .loop1
     mov rax, rdx
