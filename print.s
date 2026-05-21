@@ -82,7 +82,7 @@ mult10:
     mov [rsi], r8
     ret
 
-%macro dump10 1
+%macro dump_dec 1
         memcp temp, %1
         mov rdi, base10
         mov rsi, temp

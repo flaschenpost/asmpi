@@ -7,6 +7,13 @@
         call divide
 %endmacro
 
+%macro dividRem 3
+  mov rdi, %1
+  mov rsi, %2
+  mov rdx, %3
+  call divideRem
+%endmacro
+
 %macro addto 2
         mov rdi, %1
         mov rsi, %2
@@ -19,6 +26,30 @@
         mov rdx, %3
         call sub3
 %endmacro
+
+;; external LEN
+;; rdi: target, rsi: divisor, rdx: last remainder
+;; return remainder
+divideRem:
+    mov rcx, LEN
+    xor rax, rax
+    .loop1:
+    test rdx, rdx
+    jnz .calc
+    test rax, rax
+    jnz .calc
+      mov [rdi], rax
+      add rdi,8
+      jmp .endloop1
+    .calc:
+    div rsi
+    mov [rdi], rax
+    add rdi,8
+    .endloop1:
+    dec rcx
+    jnz .loop1
+    mov rax, rdx
+    ret
 
 ;; external LEN
 ;; rdi: target, rsi: source, rdx: divisor, rcx: last remainder
@@ -42,7 +73,7 @@ divide:
     mov [rdi], rax
     add rdi,8
     add rsi,8
-    .endloop1
+    .endloop1:
     dec rcx
     jnz .loop1
     mov rax, r8
