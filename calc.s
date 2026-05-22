@@ -28,19 +28,14 @@
 %endmacro
 
 ;; external LEN
-;; rdi: target, rsi: divisor, rdx: last remainder
+;; rdi: target, rsi: divisor, rdx: qword coming BEFORE all the zeros 
 ;; return remainder
 divideRem:
     mov rcx, LEN
-    mov rax, rdx
-    xor rdx, rdx
     .loop1:
+    xor rax, rax
     test rdx, rdx
-    jnz .calc
-    test rax, rax
-    jnz .calc
-      jmp .endloop1
-    .calc:
+    jz .endloop1
     div rsi
     .endloop1:
     mov [rdi], rax
@@ -51,6 +46,42 @@ divideRem:
     mov rax, rdx
     ret
 
+;; external LEN
+;; rdi: target, rsi: source, rdx: last remainder (to r8 = last divisor), rcx: last divisor, r8: current divisor
+;; return remainder
+divideWithRem:
+    ;; r15 will hold last divisor
+    push r15
+    ;; still free
+    push r14
+    ; store divider to r9
+    mov r9, rdx 
+    mov r15, rcx
+
+    ; rcx is counter as usual
+    mov rcx, LEN
+
+    ; start with empty 
+    xor rdx, rdx
+
+    .loop1:
+    mov rax, [rsi]
+    test rdx, rdx
+    jz .endloop1
+    test rdx, rdx
+    jz .endloop1
+    div rsi
+    .endloop1:
+    mov [rdi], rax
+    xor rax, rax
+    add rdi,8
+    add rsi,8
+    dec rcx
+    jnz .loop1
+    mov rax, rdx
+    pop r14
+    pop r15
+    ret
 ;; external LEN
 ;; rdi: target, rsi: source, rdx: divisor, rcx: last remainder
 ;; return remainder

@@ -75,7 +75,7 @@ section .text
         ; division into fq1
 
         ; last "remainder" = 1, initial value
-        mov rax, 16
+        mov rax, 1
         dividRem fq1, Q1, rax
         ; remainder into rest1
         mov qword [rest1], rax
