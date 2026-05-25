@@ -1,18 +1,18 @@
 ;; rdi, rsi, rdx, rcx, r8, r9
 
 ;; external LEN, REMA
-; rdi : target
-fillzero:
-    mov rcx, LEN
+; rdi : target, rsi: count
+%macro fillzero 2
+    mov rdi, %1
+    mov rcx, %2
     mov rax, 0
     cld
     rep stosq
-    ret
+%endmacro
 
-; rdi : target
-init_to_1:
-    mov rax,1
-    shl rax, REMA
+%macro init_to 2
+    mov rdi, %1
+    mov rax, %2
     mov [rdi], rax
     add rdi, 8
     mov rcx, LEN
@@ -20,7 +20,7 @@ init_to_1:
     mov rax, 0
     cld
     rep stosq
-    ret
+%endmacro
 
 ; copy LEN qw from rsi to rdi
 %macro memcp 2

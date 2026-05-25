@@ -1,52 +1,145 @@
-;; external LEN
 ;; rdi: target, rsi: source, rdx: divisor
-divide:
-    mov r8, rdx
-    xor rdx, rdx
+%macro divid 4
+        mov rdi, %1
+        mov rsi, %2
+        mov rdx, %3
+        mov rcx, %4
+        call divide
+        mov %4, rax
+%endmacro
+
+%macro dividRem 3
+  mov rdi, %1
+  mov rsi, %2
+  mov rdx, %3
+  call divideRem
+%endmacro
+
+;; target, source, offset
+%macro addto 3
+        mov rdi, %1
+        mov rsi, %2
+        mov rdx, %3
+        call add2
+%endmacro
+
+%macro subtract 4
+        mov rdi, %1
+        mov rsi, %2
+        mov rdx, %3
+        mov rcx, %4
+        call sub3
+%endmacro
+
+;; external LEN
+;; rdi: target, rsi: divisor, rdx: first number
+;; return remainder
+divideRem:
     mov rcx, LEN
+    mov rax, rdx
+    xor rdx, rdx
     .loop1:
-    mov rax, [rsi]
-    div r8
+    test rdx, rdx
+    jnz .calc
+    test rax, rax
+    jnz .calc
+      jmp .aftercalc
+    .calc:
+    div rsi
+    .aftercalc:
     mov [rdi], rax
+    xor rax, rax
     add rdi,8
-    add rsi,8
     dec rcx
     jnz .loop1
+    mov rax, rdx
     ret
 
-;; rdi: Target (digits), rsi: source1; rdx: source2 rdi = rsi - rdx
+;; external LEN
+;; rdi: target, rsi: source, rdx: divisor, rcx: offset
+;; return new offset with zeros
+divide:
+
+    .preloop:
+    cmp rcx, LEN
+    jae .ret
+    mov rax, [rsi + 8*rcx]
+    test qword rax, rax
+    jnz .exitpreloop
+    mov r9,rcx
+    inc rcx
+    jmp .preloop
+
+    .exitpreloop:
+
+    mov r8, rdx
+    xor rdx, rdx
+
+    .loop1:
+    cmp rcx, LEN
+    jae .ret
+    mov rax, [rsi + 8*rcx]
+    div r8
+    mov [rdi+8*rcx], rax
+    inc rcx
+    jmp .loop1
+    
+    .ret:
+    mov rax, r9
+    ret
+
+;; rdi: Target (digits), rsi: source1; rdx: source2 rdi = rsi - rdx, rcx: 0-offset
 sub3:
-    ;; r8: übertrag
+    ;; r8: leading zeros
+    mov r8, rcx
     mov rcx, LEN
-    lea rsi, [rsi+8*rcx]
-    lea rdi, [rdi+8*rcx]
-    lea rdx, [rdx+8*rcx]
+    dec rcx
+    .tst:
     clc
     .loop1:
-      lea rsi, [rsi - 8]
-      lea rdi, [rdi - 8]
-      lea rdx, [rdx - 8]
-      mov rax, [rsi]
-      sbb rax, [rdx]
-      mov [rdi], rax
+      cmp rcx, r8
+      jbe .cp
+      mov rax, [rsi+8*rcx]
+      sbb rax, [rdx+8*rcx]
+      mov [rdi+8*rcx], rax
       dec rcx
     jnz .loop1
+    test qword r8,r8
+    jz .ret
+    .cp:
+    ;; uebertrag
+      mov rax, [rsi+8*rcx]
+      sbb rax, 0
+      mov [rdi+8*rcx], rax
+      dec rcx
+      jz .ret
+      std                             ; Clear Direction Flag (DF=0) 
+      rep movsq                       ; Repeat "move qword" RCX times
+      cld
+    .ret:
     ret
-;; rdi: Target (digits), rsi: source; rdi=rdi+rsi
+;; rdi: Target (digits), rsi: source; rdi=rdi+rsi, rdx: number of leading zeros
 add2:
     ;; r8: übertrag
     mov rcx, LEN
-    lea rsi, [rsi+8*rcx]
-    lea rdi, [rdi+8*rcx]
     clc
     .loop1:
-      lea rsi, [rsi-8]
-      lea rdi, [rdi-8]
-      mov rax, [rsi]
-      adc rax, [rdi]
-      mov [rdi], rax
+      cmp rcx, rdx
+      jbe .ret
       dec rcx
-    jnz .loop1
+      mov rax, [rsi+8*rcx]
+      adc rax, [rdi+8*rcx]
+      mov [rdi+8*rcx], rax
+    jmp .loop1
+    jnc .ret
+    ;; use last carry flag
+    test rdx, rdx
+    jz .ret
+    mov rax, [rsi+8*rcx]
+    adc rax, 0
+    mov [rdi+8*rcx], rax
+    dec rcx
+    .ret:
     ret
 ;; rdi: Target (digits), rsi: source , rdx: multiplyer
 mult:
