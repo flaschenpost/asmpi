@@ -92,16 +92,21 @@ divide:
 ;; rdi: Target (digits), rsi: source1; rdx: source2 rdi = rsi - rdx, rcx: 0-offset
 sub3:
     ;; r8: leading zeros
+    push r9
     mov r8, rcx
     mov rcx, LEN
+    mov r9, rdx
     dec rcx
     .tst:
     clc
     .loop1:
+      pushf
       cmp rcx, r8
       jb .cp
+      popf
       mov rax, [rsi+8*rcx]
-      sbb rax, [rdx+8*rcx]
+      mov r9, [rdx+8*rcx]
+      sbb rax, r9
       mov [rdi+8*rcx], rax
       dec rcx
     jnz .loop1
@@ -122,6 +127,7 @@ sub3:
       mov [rdi+8*rcx], rax
       jmp .rep
     .ret:
+    pop r9
     ret
 ;; rdi: Target (digits), rsi: source; rdi=rdi+rsi, rdx: number of leading zeros
 add2:

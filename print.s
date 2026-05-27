@@ -59,7 +59,7 @@ ret
 ;; rdi: source (wird verändert)
 ;; destroys r8, r9, r10, rdx, rcx, rsi, rax
 dumpD10:
-    mov rbx, LEN+1
+    mov rbx, LEN
     .dumplp:
 
     ;; r8: übertrag

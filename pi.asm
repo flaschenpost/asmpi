@@ -1,5 +1,5 @@
 ; --- Define the constant ---
-%assign LEN 0x40
+%assign LEN 0x4
 %assign Q1 5
 %assign Q2 239
 %assign Q1S Q1*Q1
@@ -79,6 +79,22 @@ _start:
     xor r14, r14
     mov r13, 3
 
+    dividRem fq1, 3, 1
+    dividRem fq2, 6, 1
+    dump_bits fq1
+    dump_bits fq2
+    print hello1
+    dump10 fq1
+    print hello2
+    dump10 fq2
+    subtract sum, fq1, fq2, r14
+    ; subtract sum, fq2, fq1, r14
+    print hello3
+    dump_bits sum
+    print hello3
+    dump10 sum
+
+    exit 3
     dividRem fq1, Q1, 16
     dividRem fq2, Q2, 4
 
