@@ -79,22 +79,7 @@ _start:
     xor r14, r14
     mov r13, 3
 
-    dividRem fq1, 3, 1
-    dividRem fq2, 6, 1
-    dump_bits fq1
-    dump_bits fq2
-    print hello1
-    dump10 fq1
-    print hello2
-    dump10 fq2
-    subtract sum, fq1, fq2, r14
-    ; subtract sum, fq2, fq1, r14
-    print hello3
-    dump_bits sum
-    print hello3
-    dump10 sum
 
-    exit 3
     dividRem fq1, Q1, 16
     dividRem fq2, Q2, 4
 
@@ -118,6 +103,8 @@ _start:
       add r13,2
       subtract sum, sum, a, r8
 
+      dump10 sum
+
       divid fq1, fq1, Q1S, r15
       divid fq2, fq2, Q2S, r14
 
@@ -127,6 +114,8 @@ _start:
       add r13,2
 
       addto sum, a, r8
+      dump10 sum
+
       cmp r14, LEN
       jae .postloop1
     jmp .loop1
