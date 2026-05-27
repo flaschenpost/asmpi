@@ -60,14 +60,15 @@ divideRem:
 ;; return new offset with zeros
 divide:
 
+    mov r9,rcx
     .preloop:
     cmp rcx, LEN
     jae .ret
     mov rax, [rsi + 8*rcx]
     test qword rax, rax
     jnz .exitpreloop
-    mov r9,rcx
     inc rcx
+    mov r9,rcx
     jmp .preloop
 
     .exitpreloop:
@@ -98,24 +99,28 @@ sub3:
     clc
     .loop1:
       cmp rcx, r8
-      jbe .cp
+      jb .cp
       mov rax, [rsi+8*rcx]
       sbb rax, [rdx+8*rcx]
       mov [rdi+8*rcx], rax
       dec rcx
     jnz .loop1
-    test qword r8,r8
-    jz .ret
+    mov rax, [rsi]
+    sbb rax, [rdx]
+    mov [rdi], rax
+    jmp .ret
     .cp:
-    ;; uebertrag
-      mov rax, [rsi+8*rcx]
-      sbb rax, 0
-      mov [rdi+8*rcx], rax
+      mov rax, [rsi]
+      sbb rax, [rdx]
+      mov [rdi], rax
+      test rcx,rcx
+      jz .ret
+      .rep:
       dec rcx
       jz .ret
-      std                             ; Clear Direction Flag (DF=0) 
-      rep movsq                       ; Repeat "move qword" RCX times
-      cld
+      mov rax, [rsi+8*rcx]
+      mov [rdi+8*rcx], rax
+      jmp .rep
     .ret:
     ret
 ;; rdi: Target (digits), rsi: source; rdi=rdi+rsi, rdx: number of leading zeros
@@ -141,6 +146,7 @@ add2:
     dec rcx
     .ret:
     ret
+
 ;; rdi: Target (digits), rsi: source , rdx: multiplyer
 mult:
     ;; r8: übertrag
