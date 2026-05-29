@@ -85,6 +85,7 @@ dumpD10:
     dec rbx
     jnz .dumplp
     ;; shr rax, REMA
+    print newln
     mov rax, r8
     ret
 

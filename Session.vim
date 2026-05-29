@@ -4,21 +4,26 @@ let s:cpo_save=&cpo
 set cpo&vim
 map! <S-Insert> <MiddleMouse>
 imap <F2> :wa
+nnoremap ,. :tabnext
+nnoremap ,, :tabprevious
+nnoremap ,e :tabnew MLU-Portal/
+nnoremap ,c :bd
+nnoremap ,o :tabnew <cfile>
 noremap ,u mlbgue`l
 noremap ,U mlbgUe`l
 xmap gx <Plug>NetrwBrowseXVis
 nmap gx <Plug>NetrwBrowseX
 map gf :tabnew <cfile>
+map <F12> :bd:x
+map <F9> 4dd:x
 xnoremap <silent> <Plug>NetrwBrowseXVis :call netrw#BrowseXVis()
 nnoremap <silent> <Plug>NetrwBrowseX :call netrw#BrowseX(netrw#GX(),netrw#CheckIfRemote(netrw#GX()))
-map <F9> 4dd:x
-map <F12> :bd:x
+map <F5> 1G"*yG
 map <S-Insert> "+p
 map <C-Insert> "+y:let @*=@@
 map <M-Right> :call search('\C[A-Z_\w]\|\<', 'W')
 map <M-Left> :call search('\C[A-Z_]\|\<', 'bW')
 map <F3> :e
-map <F5> 1G"*yG
 map <F4> :qa
 map <F2> :w
 let &cpo=s:cpo_save
@@ -32,7 +37,9 @@ set expandtab
 set fileencodings=ucs-bom,utf-8,default,latin1
 set grepprg=grep\ -nH\ $*
 set guifont=Monospace\ 13
+set guioptions=aegimrLt
 set helplang=en
+set history=500
 set hlsearch
 set ignorecase
 set nomodeline
@@ -49,13 +56,14 @@ set tags=~/mytags
 set termencoding=utf-8
 set undodir=~/.vim/undodir
 set undofile
+set whichwrap=b,<,>,[,]
 set wildmenu
 set window=38
 let s:so_save = &g:so | let s:siso_save = &g:siso | setg so=0 siso=0 | setl so=-1 siso=-1
 let v:this_session=expand("<sfile>:p")
 silent only
 silent tabonly
-cd ~/pi
+cd ~/tmp/g1/asmpi
 if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
@@ -64,11 +72,13 @@ if &shortmess =~ 'A'
 else
   set shortmess=aoO
 endif
-badd +0 pi.asm
+badd +1 pi.asm
 badd +1 calc.s
-badd +0 mem.s
-badd +0 print.s
-badd +0 tmp.s
+badd +1 mem.s
+badd +1 print.s
+badd +1 tmp.s
+badd +0 o1.asm
+badd +0 t1.asm
 argglobal
 %argdel
 $argadd o1.asm
@@ -218,7 +228,7 @@ setlocal nowinfixwidth
 set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
-let s:l = 93 - ((32 * winheight(0) + 19) / 38)
+let s:l = 93 - ((35 * winheight(0) + 21) / 42)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
@@ -359,7 +369,7 @@ setlocal nowinfixwidth
 set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
-let s:l = 1 - ((0 * winheight(0) + 19) / 38)
+let s:l = 1 - ((0 * winheight(0) + 21) / 42)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
@@ -368,6 +378,7 @@ normal! 0
 tabnext
 edit calc.s
 argglobal
+1argu
 if bufexists(fnamemodify("calc.s", ":p")) | buffer calc.s | else | edit calc.s | endif
 balt mem.s
 setlocal keymap=
@@ -501,7 +512,7 @@ setlocal nowinfixwidth
 set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
-let s:l = 1 - ((0 * winheight(0) + 19) / 38)
+let s:l = 1 - ((0 * winheight(0) + 20) / 41)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
@@ -642,7 +653,7 @@ setlocal nowinfixwidth
 set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
-let s:l = 1 - ((0 * winheight(0) + 11) / 23)
+let s:l = 1 - ((0 * winheight(0) + 20) / 41)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
@@ -783,12 +794,12 @@ setlocal nowinfixwidth
 set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
-let s:l = 1 - ((0 * winheight(0) + 11) / 23)
+let s:l = 1 - ((0 * winheight(0) + 21) / 42)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
 keepjumps 1
-normal! 01|
+normal! 0
 tabnext 3
 set stal=1
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0

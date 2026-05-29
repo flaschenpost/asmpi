@@ -92,24 +92,18 @@ divide:
 ;; rdi: Target (digits), rsi: source1; rdx: source2 rdi = rsi - rdx, rcx: 0-offset
 sub3:
     ;; r8: leading zeros
-    push rdi
-    push rsi
-    push rcx
-    lea rdi, [rdi+8*rcx]
-    lea rsi, [rsi+8*rcx]
-    lea rdx, [rdx+8*rcx]
-    mov r8, rcx
+    ; r8: counter (LEN - rcx)
+    mov r8, LEN
+    sub r8, rcx
+    ; rcx: position
     mov rcx, LEN
-    sub rcx, r8
     .loop1:
-      mov rax, [rsi+8*rcx-8]
-      sbb rax, [rdx+8*rcx-8]
-      mov [rdi+8*rcx-8], rax
       dec rcx
+      mov rax, [rsi+8*rcx]
+      sbb rax, [rdx+8*rcx]
+      mov [rdi+8*rcx], rax
+      dec r8
     jnz .loop1
-    pop rcx
-    pop rsi
-    pop rdi
     test rcx, rcx
     jz .ret
     .cp:

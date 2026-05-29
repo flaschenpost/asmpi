@@ -1,5 +1,5 @@
 ; --- Define the constant ---
-%assign LEN 0x4
+%assign LEN 0x10
 %assign Q1 5
 %assign Q2 239
 %assign Q1S Q1*Q1
@@ -34,6 +34,8 @@ section .data
     .len equ $ - hello2
     hello3 db  0xa, " h3", 0xa
     .len equ $ - hello3
+    newln db  0xa
+    .len equ $ - newln
 
 section .bss
     ; --- Reserve memory blocks ---
@@ -61,6 +63,33 @@ section .text
     syscall
 %endmacro
 
+testsub:
+    dividRem fq1, 3, 1
+    print hello1
+    dump10 fq1
+    print hello2
+    dividRem fq2, 6, 1
+
+    print hello2
+    dump10 fq2
+
+    mov rax, [D19]
+    divid fq1, fq1, rax, r15
+    print hello1
+    dump10 fq1
+    mov rax, [D19]
+    divid fq2, fq2, rax, r14
+    print hello2
+    dump10 fq2
+    inc r14
+
+    subtract sum, fq1, fq2, r14
+
+    print hello3
+    dump10 sum
+    exit 2
+    ret
+
 _start:
 
     mov rax, 10
@@ -72,6 +101,11 @@ _start:
     jnz .init_d19
     mov [D19], rax
 
+    dividRem fq1, Q1, 16
+    dividRem fq2, Q2, 4
+
+    subtract sum, fq1, fq2, r14
+
     ;; offset fq1 (qwords with zero)
     xor r15, r15
 
@@ -79,35 +113,55 @@ _start:
     xor r14, r14
     mov r13, 3
 
-
-    dividRem fq1, Q1, 16
-    dividRem fq2, Q2, 4
-
-    subtract sum, fq1, fq2, r14
-
-    dump10 sum
-
+    mov r12,0
     .loop1:
-      ; print hello1 
-      ; dump_bits fq2
+      print hello1 
+      dump_bits fq2
 
       divid fq1, fq1, Q1S, r15
+      dump10 fq1
       divid fq2, fq2, Q2S, r14
+      dump10 fq2
 
+      cmp r14, LEN
+      jae .postloop1
+
+      inc r12
+      print hello3
+      mov rax,r14
+      call conv64
+      print hello3
       subtract a, fq1, fq2, r14
+      dump10 a
 
       ;; dump_bits fq2
 
       mov r8, r14
       divid a, a, r13, r8
+      dump10 a
       add r13,2
-      subtract sum, sum, a, r8
+      dump10 sum
+      inc r12
+      print hello2
+      mov rax,r14
+      call conv64
+      print hello2
+      subtract sum, sum, a, r14
 
       dump10 sum
 
+
       divid fq1, fq1, Q1S, r15
       divid fq2, fq2, Q2S, r14
+      dump_bits fq2
 
+      cmp r14, LEN
+      jae .postloop1
+
+      print hello2
+      mov rax,r14
+      call conv64
+      print hello2
       subtract a, fq1, fq2, r14
       mov r8, r14
       divid a, a, r13, r8
