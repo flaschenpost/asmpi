@@ -1,5 +1,5 @@
 ; --- Define the constant ---
-%assign LEN 0x10
+%assign LEN 0x50
 %assign Q1 5
 %assign Q2 239
 %assign Q1S Q1*Q1
@@ -22,18 +22,24 @@ section .data
     ;; qword mal 19.265919
     D19 dq 1
 
-    lsum db  0xa, " sum= ", 0xa
+    losum db  0xa, " sOm= "
+    .len equ $ - losum
+    lsum db  0xa, " sum= "
     .len equ $ - lsum
-    lfq2 db  0xa, " FQ2= ", 0xa
+    lfq2 db  0xa, " FQ2= "
     .len equ $ - lfq2
-    lfq1 db  0xa, " FQ1= ", 0xa
+    lfq1 db  0xa, " FQ1= "
     .len equ $ - lfq1
-    hello1 db  0xa, " h1", 0xa
+    hello1 db  " h1", 0xa
     .len equ $ - hello1
     hello2 db  0xa, " h2", 0xa
     .len equ $ - hello2
     hello3 db  0xa, " h3", 0xa
-    .len equ $ - hello3
+    .len equ $ - hello2
+    l_pa db  0xa, " +a= "
+    .len equ $ - l_pa
+    l_ma db  0xa, " -a= "
+    .len equ $ - l_ma
     newln db  0xa
     .len equ $ - newln
 
@@ -65,12 +71,12 @@ section .text
 
 testsub:
     dividRem fq1, 3, 1
-    print hello1
+    print lfq1
     dump10 fq1
     print hello2
     dividRem fq2, 6, 1
 
-    print hello2
+    print lfq2
     dump10 fq2
 
     mov rax, [D19]
@@ -86,6 +92,9 @@ testsub:
     subtract sum, fq1, fq2, r14
 
     print hello3
+    dump10 sum
+    addto sum, fq2, r14
+    print lsum
     dump10 sum
     exit 2
     ret
@@ -104,7 +113,14 @@ _start:
     dividRem fq1, Q1, 16
     dividRem fq2, Q2, 4
 
+    print lfq1 
+    dump10 fq1
+    print lfq2 
+    dump10 fq2
+
     subtract sum, fq1, fq2, r14
+    print hello1
+    dump10 sum
 
     ;; offset fq1 (qwords with zero)
     xor r15, r15
@@ -116,58 +132,56 @@ _start:
     mov r12,0
     .loop1:
       print hello1 
-      dump_bits fq2
 
       divid fq1, fq1, Q1S, r15
-      dump10 fq1
       divid fq2, fq2, Q2S, r14
-      dump10 fq2
+      ; print lfq1
+      ; dump10 fq1
+      ; print lfq2
+      ; dump10 fq2
 
-      cmp r14, LEN
-      jae .postloop1
-
-      inc r12
-      print hello3
-      mov rax,r14
-      call conv64
-      print hello3
       subtract a, fq1, fq2, r14
-      dump10 a
 
       ;; dump_bits fq2
 
-      mov r8, r14
+      mov r8, r15
       divid a, a, r13, r8
-      dump10 a
       add r13,2
-      dump10 sum
-      inc r12
-      print hello2
-      mov rax,r14
-      call conv64
-      print hello2
-      subtract sum, sum, a, r14
 
+      ; print l_ma
+      ; dump10 a
+
+      ;;print losum
+      ;;dump10 sum
+      subtract sum, sum, a, r15
+      print lsum
       dump10 sum
 
 
       divid fq1, fq1, Q1S, r15
       divid fq2, fq2, Q2S, r14
-      dump_bits fq2
 
-      cmp r14, LEN
-      jae .postloop1
+      ; print lfq1
+      ; dump10 fq1
+      ; print lfq2
+      ; dump10 fq2
 
-      print hello2
-      mov rax,r14
-      call conv64
-      print hello2
       subtract a, fq1, fq2, r14
-      mov r8, r14
+      mov r8, r15
       divid a, a, r13, r8
-      add r13,2
 
-      addto sum, a, r8
+      add r13,2
+      ; print l_pa
+      ; dump10 a
+
+      ;;print l_a
+      ;;dump10 a
+
+      ;;print losum
+      ;;dump10 sum
+
+      addto sum, a, r15
+      print lsum
       dump10 sum
 
       cmp r14, LEN
@@ -176,9 +190,6 @@ _start:
 
     .postloop1:
 
-    print hello3
-    dump10 sum
-
     .loop2:
       divid fq1, fq1, Q1S, r15
 
@@ -186,19 +197,35 @@ _start:
 
       ;; dump_bits fq2
 
-      mov r8, r14
+      mov r8, r15
       divid a, a, r13, r8
+      print hello1
+      mov rax, r8
+      call conv64
+      cmp r8, LEN
+      jae .endloop
       add r13,2
-      subtract sum, sum, a, r8
+      subtract sum, sum, a, r15
 
       divid fq1, fq1, Q1S, r15
       memcp a, fq1
 
-      mov r8, r14
+      mov r8, r15
       divid a, a, r13, r8
+      cmp r8, LEN
+      jae .endloop
       add r13,2
+      print l_pa
+      dump10 a
 
-      addto sum, a, r8
+      print hello2
+      mov rax, r15
+      call conv64
+      ; dump10 a
+      addto sum, a, r15
+      print lsum
+      dump10 sum
+
       cmp r15, LEN
       jae .endloop
     jmp .loop2

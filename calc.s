@@ -95,6 +95,7 @@ sub3:
     ; r8: counter (LEN - rcx)
     mov r8, LEN
     sub r8, rcx
+    jz .cp
     ; rcx: position
     mov rcx, LEN
     .loop1:
@@ -115,25 +116,27 @@ sub3:
     ret
 ;; rdi: Target (digits), rsi: source; rdi=rdi+rsi, rdx: number of leading zeros
 add2:
-    ;; r8: übertrag
-    mov rcx, LEN
-    clc
-    .loop1:
-      cmp rcx, rdx
-      jbe .ret
-      dec rcx
-      mov rax, [rsi+8*rcx]
-      adc rax, [rdi+8*rcx]
-      mov [rdi+8*rcx], rax
-    jmp .loop1
-    jnc .ret
-    ;; use last carry flag
-    test rdx, rdx
+    ;; r8: leading zeros
+    ; r8: counter (LEN - rcx)
+    mov r8, LEN
+    sub r8, rdx
     jz .ret
-    mov rax, [rsi+8*rcx]
+    clc
+    ; rcx: position
+    mov rcx, LEN
+    .loop1:
+      dec rcx
+      mov rax, [rdi+8*rcx]
+      adc rax, [rsi+8*rcx]
+      mov [rdi+8*rcx], rax
+      dec r8
+    jnz .loop1
+    jnc .ret
+    test rcx, rcx
+    jz .ret
+    mov rax, [rsi+8*rcx-8]
     adc rax, 0
-    mov [rdi+8*rcx], rax
-    dec rcx
+    mov [rdi+8*rcx-8], rax
     .ret:
     ret
 
