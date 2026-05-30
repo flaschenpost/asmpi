@@ -1,5 +1,5 @@
 ; --- Define the constant ---
-%assign LEN 0x50
+%assign LEN 0x1000
 %assign Q1 5
 %assign Q2 239
 %assign Q1S Q1*Q1
@@ -71,31 +71,31 @@ section .text
 
 testsub:
     dividRem fq1, 3, 1
-    print lfq1
-    dump10 fq1
-    print hello2
+    ; print lfq1
+    ; dump10 fq1
+    ; print hello2
     dividRem fq2, 6, 1
 
-    print lfq2
-    dump10 fq2
+    ; print lfq2
+    ; dump10 fq2
 
     mov rax, [D19]
     divid fq1, fq1, rax, r15
-    print hello1
-    dump10 fq1
+    ; print hello1
+    ; dump10 fq1
     mov rax, [D19]
     divid fq2, fq2, rax, r14
-    print hello2
-    dump10 fq2
+    ; print hello2
+    ; dump10 fq2
     inc r14
 
     subtract sum, fq1, fq2, r14
 
-    print hello3
-    dump10 sum
+    ; print hello3
+    ; dump10 sum
     addto sum, fq2, r14
-    print lsum
-    dump10 sum
+    ; print lsum
+    ; dump10 sum
     exit 2
     ret
 
@@ -113,14 +113,14 @@ _start:
     dividRem fq1, Q1, 16
     dividRem fq2, Q2, 4
 
-    print lfq1 
-    dump10 fq1
-    print lfq2 
-    dump10 fq2
+    ; print lfq1 
+    ; dump10 fq1
+    ; print lfq2 
+    ; dump10 fq2
 
     subtract sum, fq1, fq2, r14
-    print hello1
-    dump10 sum
+    ; print hello1
+    ; dump10 sum
 
     ;; offset fq1 (qwords with zero)
     xor r15, r15
@@ -131,7 +131,7 @@ _start:
 
     mov r12,0
     .loop1:
-      print hello1 
+      ; print hello1 
 
       divid fq1, fq1, Q1S, r15
       divid fq2, fq2, Q2S, r14
@@ -154,8 +154,8 @@ _start:
       ;;print losum
       ;;dump10 sum
       subtract sum, sum, a, r15
-      print lsum
-      dump10 sum
+      ; print lsum
+      ; dump10 sum
 
 
       divid fq1, fq1, Q1S, r15
@@ -181,8 +181,8 @@ _start:
       ;;dump10 sum
 
       addto sum, a, r15
-      print lsum
-      dump10 sum
+      ; print lsum
+      ; dump10 sum
 
       cmp r14, LEN
       jae .postloop1
@@ -199,10 +199,10 @@ _start:
 
       mov r8, r15
       divid a, a, r13, r8
-      print hello1
-      mov rax, r8
-      call conv64
-      cmp r8, LEN
+      ; print hello1
+      ; mov rax, r8
+      ; call conv64
+      ; cmp r8, LEN
       jae .endloop
       add r13,2
       subtract sum, sum, a, r15
@@ -215,16 +215,16 @@ _start:
       cmp r8, LEN
       jae .endloop
       add r13,2
-      print l_pa
-      dump10 a
+      ; print l_pa
+      ; dump10 a
 
-      print hello2
-      mov rax, r15
-      call conv64
+      ; print hello2
+      ; mov rax, r15
+      ; call conv64
       ; dump10 a
       addto sum, a, r15
-      print lsum
-      dump10 sum
+      ; print lsum
+      ; dump10 sum
 
       cmp r15, LEN
       jae .endloop
@@ -234,45 +234,7 @@ _start:
 
     print hello2
     dump10 sum
-    exit 3
-
-    print hello1
-    dump_bits sum
-
-    mov rdi, a
-    mov rsi, sum
-    memcp a, sum
-    dump10 a
-
-    dump_bits sum
-    dump_bits a
-
-    exit 3
-    print lsum
-    dump10 sum
-
-
-    print hello2
-    dump_bits fq1
-    print hello3
-    dump_bits fq2
-    .endtst:
-
-    print hello1
-    dump_bits fq1
-    print hello1
-    dump_bits fq2
-    exit 7
-
-
     exit 0
-
-    ; mov rdi, debug
-    ; mov rsi, b
-    ; call dump
-
-    
-
 ; Compile/Link
 ;
 ; nasm -f elf64 -o hello-stack_64.o hello-stack_64.asm
