@@ -1,5 +1,5 @@
 ; --- Define the constant ---
-%assign LEN 0x1000
+%assign LEN 51801
 %assign Q1 5
 %assign Q2 239
 %assign Q1S Q1*Q1
@@ -53,7 +53,7 @@ section .bss
     b: resq LEN
     c: resq LEN
     temp: resq LEN
-    base10: resb DIGITS+1 ;; \n
+    base10: resb DIGITS ;; \n
     base10.len equ $ - base10
     debug: resb 73*(LEN)+2
 
@@ -70,32 +70,19 @@ section .text
 %endmacro
 
 testsub:
-    dividRem fq1, 3, 1
+    mov rcx, 13000000000
+    dividRem fq1, rcx, 1
     ; print lfq1
-    ; dump10 fq1
-    ; print hello2
-    dividRem fq2, 6, 1
-
-    ; print lfq2
-    ; dump10 fq2
-
-    mov rax, [D19]
-    divid fq1, fq1, rax, r15
-    ; print hello1
-    ; dump10 fq1
-    mov rax, [D19]
-    divid fq2, fq2, rax, r14
-    ; print hello2
-    ; dump10 fq2
-    inc r14
-
-    subtract sum, fq1, fq2, r14
-
-    ; print hello3
-    ; dump10 sum
-    addto sum, fq2, r14
-    ; print lsum
-    ; dump10 sum
+    memcp sum, fq1
+    dump10 sum
+    xor r14,r14
+    .loop:
+    push rcx
+    addto sum, fq1, r14
+    dump10 sum
+    pop rcx
+    dec rcx
+    jnz .loop
     exit 2
     ret
 
@@ -109,6 +96,8 @@ _start:
     dec rcx
     jnz .init_d19
     mov [D19], rax
+
+    ; call testsub
 
     dividRem fq1, Q1, 16
     dividRem fq2, Q2, 4
@@ -154,8 +143,15 @@ _start:
       ;;print losum
       ;;dump10 sum
       subtract sum, sum, a, r15
+      ;mov rax,r13
+      ;xor rdx, rdx
+      ;mov qword r8, 1000
+      ;div r8
+      ;cmp rdx, 3
+      ;jne .noprint1
+        ;dump10 sum
+      ; .noprint1:
       ; print lsum
-      ; dump10 sum
 
 
       divid fq1, fq1, Q1S, r15
@@ -202,11 +198,19 @@ _start:
       ; print hello1
       ; mov rax, r8
       ; call conv64
-      ; cmp r8, LEN
+      cmp r8, LEN
       jae .endloop
       add r13,2
       subtract sum, sum, a, r15
 
+      ;xor rdx, rdx
+      ;mov rax,r13
+      ;mov qword r8, 1000
+      ;div r8
+      ;cmp rdx, 5
+      ;jne .noprint2
+        ;dump10 sum
+      ;.noprint2:
       divid fq1, fq1, Q1S, r15
       memcp a, fq1
 
@@ -234,6 +238,7 @@ _start:
 
     print hello2
     dump10 sum
+    print newln
     exit 0
 ; Compile/Link
 ;

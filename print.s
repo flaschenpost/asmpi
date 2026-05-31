@@ -17,6 +17,7 @@
   memcp temp, %1
   mov rdi, temp
   call dumpD10
+  print newln
 %endmacro
 
 ;; destroys rax and rdx
@@ -27,7 +28,7 @@ conv64:
    push r8
 
    mov rcx, DIGITS
-   mov byte [base10+rcx], ' '
+   ; mov byte [base10+rcx], ' '
    mov r8,10
    .conv64l:
    dec rcx

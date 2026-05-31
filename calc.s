@@ -137,6 +137,13 @@ add2:
     mov rax, [rsi+8*rcx-8]
     adc rax, 0
     mov [rdi+8*rcx-8], rax
+    jnc .ret
+    test rcx,rcx
+    jz .ret
+    dec rcx
+    mov rax, [rsi+8*rcx-8]
+    adc rax, 0
+    mov [rdi+8*rcx-8], rax
     .ret:
     ret
 
