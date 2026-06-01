@@ -1,4 +1,95 @@
-; LEN qwords in rdi and rsi
+
+%macro print 1
+        mov rsi, %1
+        mov rdx, %1.len
+        mov rax, 1
+        mov rdi, rax
+        syscall
+%endmacro
+
+%macro dump_bits 1
+      mov rdi, debug
+      mov rsi, %1
+      call dump
+%endmacro
+
+%macro dump10 1
+  memcp temp, %1
+  mov rdi, temp
+  call dumpD10
+  print newln
+%endmacro
+
+;; destroys rax and rdx
+conv64:
+   push rsi
+   push rdi
+   push rcx
+   push r8
+
+   mov rcx, DIGITS
+   ; mov byte [base10+rcx], ' '
+   mov r8,10
+   .conv64l:
+   dec rcx
+   jz .conv64e
+   xor rdx,rdx
+   div r8
+   add dx, '0'
+   mov byte [base10+rcx], dl
+   jmp .conv64l
+
+   .conv64e:
+   xor rdx,rdx
+   div r8
+   add dx, '0'
+   mov byte [base10], dl
+   print base10
+    ; mov rsi, base10
+    ; mov rdx, DIGITS+1
+    ; mov rax, 1
+    ; mov rdi, rax
+    ; syscall
+   pop r8
+   pop rcx
+   pop rdi
+   pop rsi
+ret
+
+
+;; rdi: source (wird verändert)
+;; destroys r8, r9, r10, rdx, rcx, rsi, rax
+dumpD10:
+    mov rbx, LEN
+    .dumplp:
+
+    ;; r8: übertrag
+    mov rax, [rdi]
+    call conv64
+    mov qword [rdi], 0
+    mov rcx, LEN-1
+    xor r8,r8
+    mov r9, [D19]
+    .loop1:
+      mov rax, [rdi+8*rcx]
+      mul r9
+      add rax, r8
+      adc rdx, 0
+      mov r8, rdx
+      mov [rdi+8*rcx], rax
+      dec rcx
+    jnz .loop1
+    mov rax, [rdi]
+    mul r9
+    add rax, r8
+    mov [rdi], rax
+    dec rbx
+    jnz .dumplp
+    ;; shr rax, REMA
+    ; print newln
+    mov rax, r8
+    ret
+
 
 ; targetstring: rdi : resb 73*(LEN)+2
 ; sourcenumber: rsi
@@ -40,105 +131,3 @@ dump:
     mov rdi, rax
     syscall
     ret
-
-init_buffer:
-  push r12
-  push r13
-    ; digit loops, target debug
-    mov r12, base10
-    mov r13, [digits]
-    mov rdi, base10
-    mov rcx, [digits]
-    mov rax, 'Y'
-
-    cld
-    rep stosb
-    mov rax,0xa
-    stosb
-    mov rsi, b
-    mov rdi, base10
-  pop r13
-  pop r12
-
-ret
-
-;; rdi: source (wird verändert)
-;; destroys r8, r9, r10, rdx, rcx, rsi, rax
-mult10:
-    ;; r8: übertrag
-    mov rcx, LEN-1
-    lea rsi, [rsi+8*rcx]
-    xor r8,r8
-    mov r9, 10
-    mov r10, 1
-    shl r10, REMA
-    dec r10
-    .loop1:
-      mov rax, [rsi]
-      mul r9
-      add rax, r8
-      adc rdx, 0
-      mov r8, rdx
-      mov [rsi], rax
-      sub rsi,8
-      dec rcx
-    jnz .loop1
-    mov rax, [rsi]
-    mul r9
-    add rax, r8
-    ; rdx and Carry should be 0
-    mov r8, rax
-    and r8, r10
-    mov [rsi], r8
-    shr rax, REMA
-    ret
-
-%macro dump10 1
-        memcp temp, %1
-        mov rdi, base10
-        mov rsi, temp
-        call dump_b10
-%endmacro
-
-;; rdi: Target (digits), rsi: source (wird verändert)
-dump_b10:
-    push r12
-    push r13
-    ; digit loops, target debug
-    mov r12, rdi
-    mov r11, rsi
-    mov r13, [digits]
-
-    .t1:
-    mov rdi, r11
-    call mult10
-    mov byte [r12], '0'
-    add [r12], al
-    inc r12
-    ; debug out
-    ; mov rdx,[digits]
-    ; inc rdx
-    ; mov rsi, base10
-    ; mov rax,1
-    ; mov rdi, rax
-    ; syscall
-
-    ;; HUGE debug out
-    ;; mov rdi, debug
-    ;; mov rsi, b
-    ;; call dump
-    ; end debug out
-
-    dec r13
-    jnz .t1
-
-    mov rdx,[digits]
-    inc rdx
-    mov rsi, base10
-    mov rax,1
-    mov rdi, rax
-    syscall
-    pop r13
-    pop r12
-    ret
-
