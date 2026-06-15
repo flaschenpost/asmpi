@@ -6,6 +6,7 @@
 %assign Q2S Q2*Q2
 %assign NEWLINE 0xa
 %assign DIGITS 19
+%assign INVERTSIZE 1
 
 
 %include "print.s"
@@ -56,6 +57,8 @@ section .bss
     base10: resb DIGITS ;; \n
     base10.len equ $ - base10
     debug: resb 73*(LEN)+2
+    D_Q1S: resq INVERTSIZE
+    D_Q2S: resq INVERTSIZE
 
 
 ;; rdi, rsi, rdx, rcx, r8, r9
@@ -86,6 +89,25 @@ testsub:
     exit 2
     ret
 
+;; 64-bit inverse of RDI, returned in RAX
+invert:
+    mov rdx,1
+    xor rax,rax
+    div rdi
+    ret
+
+;; divide LEN qwords from rsi to rdi by mult with rdx with inverse
+dmult:
+    mov r9, LEN
+    mov r8, rdx
+    xor rcx, rcx
+    .lp1
+    mov rax, [rsi]
+    shr rax, 32
+    mul r8
+    mov [rdi], rdx
+
+
 _start:
 
     mov rax, 10
@@ -97,7 +119,9 @@ _start:
     jnz .init_d19
     mov [D19], rax
 
-    ; call testsub
+    mov rdi, Q1S
+    call invert
+    mov [D_Q1S], rax
 
     dividRem fq1, Q1, 16
     dividRem fq2, Q2, 4

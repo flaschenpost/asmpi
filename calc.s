@@ -31,9 +31,32 @@
         call sub3
 %endmacro
 
+;; rdi: target, rsi: divisor, rdx: first number
+;; return remainder
+invert:
+    mov rcx, INVERTSIZE
+    xor rax, rdx
+    xor rdx, rdx
+    .loop1:
+    test rdx, rdx
+    jnz .calc
+    test rax, rax
+    jnz .calc
+      jmp .aftercalc
+    .calc:
+    div rsi
+    .aftercalc:
+    mov [rdi], rax
+    xor rax, rax
+    add rdi,8
+    dec rcx
+    jnz .loop1
+    mov rax, rdx
+    ret
 ;; external LEN
 ;; rdi: target, rsi: divisor, rdx: first number
 ;; return remainder
+
 divideRem:
     mov rcx, LEN
     mov rax, rdx
